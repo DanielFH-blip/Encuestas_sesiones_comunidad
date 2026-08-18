@@ -98,6 +98,14 @@ h1{font-family:var(--fd);font-size:clamp(52px,13vw,78px);line-height:.86;letter-
 .check{display:flex;gap:11px;align-items:flex-start;margin-top:26px;
   font-size:14px;line-height:1.5;color:var(--muted);cursor:pointer}
 .check input{margin-top:3px;accent-color:var(--acid);width:16px;height:16px;flex-shrink:0}
+.check a{color:var(--acid)}
+.check b{color:var(--cream)}
+.check em{font-style:normal;color:var(--muted-2)}
+.check.err span{color:#8E1C14}
+.aviso{margin-top:30px;padding:16px 18px;background:var(--deep);border-radius:7px;
+  font-size:13px;line-height:1.6;color:var(--muted)}
+.aviso strong{color:var(--cream)}
+.aviso a{color:var(--acid)}
 
 button{width:100%;margin-top:28px;background:var(--acid);color:#fff;border:none;
   font-family:var(--fb);font-weight:700;font-size:19px;letter-spacing:.01em;
@@ -131,6 +139,31 @@ button:disabled{opacity:.45;cursor:not-allowed}
   letter-spacing:.02em;padding:11px 16px;border-radius:6px}
 .acts .sec{background:transparent;color:var(--cream);border:1px solid rgba(18,17,16,.28)}
 canvas{display:none}
+
+/* ── política dentro del propio formulario ── */
+#modal{position:fixed;inset:0;z-index:100;background:rgba(18,17,16,.55);
+  overflow-y:auto;padding:26px 16px;display:block}
+#modal[hidden]{display:none}
+.pol{max-width:640px;margin:0 auto;background:var(--card);border-radius:14px;
+  padding:38px 32px 44px;position:relative;overflow:hidden;
+  box-shadow:0 24px 60px rgba(18,17,16,.3)}
+.pol::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;
+  background:linear-gradient(180deg,var(--cyan) 0%,var(--acid) 60%)}
+.pol h2{font-family:var(--fd);font-size:clamp(30px,6.4vw,44px);line-height:.92;letter-spacing:.02em;padding-right:88px}
+.pol .ver{font-family:var(--fm);font-size:11px;letter-spacing:.18em;color:var(--muted-2);margin-top:12px}
+.pol h3{font-family:var(--fd);font-size:23px;line-height:1;letter-spacing:.02em;
+  margin:28px 0 10px;padding-top:20px;border-top:1px solid var(--hair)}
+.pol p,.pol li{font-size:14.5px;line-height:1.6;color:var(--muted);margin-bottom:9px}
+.pol ul{margin:0 0 9px 19px}
+.pol strong{color:var(--cream)}
+.pol a{color:var(--acid)}
+.pol dl{margin:10px 0 4px}
+.pol dt{font-family:var(--fm);font-size:10.5px;letter-spacing:.16em;color:var(--muted-2);margin-top:11px}
+.pol dd{font-size:14.5px;color:var(--muted)}
+.cerrar{position:absolute;top:16px;right:16px;width:auto;margin:0;padding:9px 15px;
+  font-size:12.5px;font-weight:700;border-radius:6px;background:var(--deep);color:var(--cream)}
+.borrador{background:#FDF3D8;border-left:4px solid #C9A227;padding:13px 15px;border-radius:6px;
+  font-size:13px;line-height:1.55;color:#5C4B10;margin:18px 0 4px}
 </style>
 </head>
 <body>
@@ -173,9 +206,26 @@ canvas{display:none}
         </label>
       </div>
 
+      <div class="aviso">
+        <strong>Tratamiento de datos.</strong> Solo Vectiva S.A.S., responsable del
+        tratamiento, usará tus datos únicamente para gestionar tu inscripción, enviarte el
+        pase y los recordatorios de la sesión, y contactarte sobre su desarrollo. Podrás
+        conocerlos, actualizarlos, rectificarlos, suprimirlos y revocar esta autorización
+        escribiendo a <a href="mailto:contacto@vectivaconsulting.com">contacto@vectivaconsulting.com</a>.
+        Los datos se almacenan en servicios de Google fuera de Colombia.
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="autoriza">
+        <span>Autorizo el tratamiento de mis datos personales conforme a la
+          <a href="#" id="ver-politica">Política de Tratamiento de Datos Personales</a>,
+          incluida su transferencia y almacenamiento internacional. <b>Obligatorio.</b></span>
+      </label>
+
       <label class="check">
         <input type="checkbox" id="acepta">
-        <span>Quiero recibir la programación de las próximas sesiones.</span>
+        <span>Además, quiero recibir la programación de las próximas sesiones.
+          <em>Opcional — puedes inscribirte sin marcarlo.</em></span>
       </label>
 
       <button id="enviar">Reserva tu lugar</button>
@@ -193,11 +243,99 @@ canvas{display:none}
 
   </div>
 </div>
+
+<div id="modal" hidden>
+  <div class="pol">
+    <button class="cerrar" id="cerrar-politica">Cerrar</button>
+    <h2>POLÍTICA DE TRATAMIENTO DE DATOS PERSONALES</h2>
+    <div class="ver">VERSIÓN v1 &middot; VIGENTE DESDE 18.08.2026 &middot; BOGOTÁ D.C., COLOMBIA</div>
+
+    <div class="borrador"><strong>Borrador pendiente de revisión legal.</strong>
+      Los campos entre corchetes deben completarse antes de publicar.</div>
+
+    <h3>1. Responsable</h3>
+    <dl>
+      <dt>RAZÓN SOCIAL</dt><dd>Solo Vectiva S.A.S.</dd>
+      <dt>NIT</dt><dd>902.064.031</dd>
+      <dt>DOMICILIO</dt><dd>Calle 46 #14-69, Bogotá D.C., Colombia</dd>
+      <dt>CORREO</dt><dd><a href="mailto:contacto@vectivaconsulting.com">contacto@vectivaconsulting.com</a></dd>
+    </dl>
+
+    <h3>2. Marco legal</h3>
+    <p>Ley Estatutaria 1581 de 2012, Decreto 1377 de 2013 —compilado en el Decreto Único
+      1074 de 2015— y normas que los modifiquen. Autoridad de vigilancia: Superintendencia
+      de Industria y Comercio (SIC).</p>
+
+    <h3>3. Datos que recolectamos</h3>
+    <ul>
+      <li>Nombre y apellido</li><li>Correo electrónico</li><li>Empresa y cargo</li>
+      <li>Teléfono (opcional)</li><li>Canal por el que conoció la sesión</li>
+      <li>Fecha, hora y versión de la política aceptada, como prueba de la autorización</li>
+    </ul>
+    <p>No recolectamos datos sensibles ni datos de menores de edad.</p>
+
+    <h3>4. Finalidades</h3>
+    <ul>
+      <li>Gestionar la inscripción y controlar los cupos.</li>
+      <li>Enviar el pase, el enlace de acceso y los recordatorios.</li>
+      <li>Comunicar cambios, cancelaciones o reprogramaciones.</li>
+      <li>Enviar material y seguimiento posterior a la sesión.</li>
+      <li>Estadísticas agregadas de asistencia, sin identificar personas.</li>
+      <li><strong>Solo con autorización adicional y separada:</strong> informar sobre
+        sesiones futuras y otros servicios de la firma.</li>
+    </ul>
+    <p>No vendemos, arrendamos ni cedemos datos personales a terceros con fines comerciales.</p>
+
+    <h3>5. Autorización</h3>
+    <p>Se obtiene de forma previa, expresa e informada mediante una casilla que no viene
+      marcada por defecto y sin la cual la inscripción no se completa. Conservamos fecha,
+      hora y versión del texto aceptado como prueba. La autorización para comunicaciones
+      comerciales es separada y opcional.</p>
+
+    <h3>6. Sus derechos</h3>
+    <ul>
+      <li>Conocer, actualizar y rectificar sus datos.</li>
+      <li>Solicitar prueba de la autorización otorgada.</li>
+      <li>Ser informado sobre el uso dado a sus datos.</li>
+      <li>Presentar quejas ante la SIC.</li>
+      <li>Revocar la autorización y solicitar la supresión.</li>
+      <li>Acceder gratuitamente a sus datos.</li>
+    </ul>
+
+    <h3>7. Cómo ejercerlos</h3>
+    <p>Escriba a <a href="mailto:contacto@vectivaconsulting.com">contacto@vectivaconsulting.com</a>
+      con su nombre, el correo con el que se inscribió y la solicitud concreta.
+      Respondemos las <strong>consultas en 10 días hábiles</strong> (prorrogables 5) y los
+      <strong>reclamos en 15 días hábiles</strong> (prorrogables 8).</p>
+
+    <h3>8. Encargados y transferencia internacional</h3>
+    <p>Usamos servicios de <strong>Google LLC</strong> (Sheets, Apps Script y Gmail) para
+      almacenar los datos y enviar las comunicaciones, lo que implica almacenamiento en
+      servidores fuera de Colombia. Esta transferencia se realiza con su autorización
+      expresa e inequívoca, conforme al artículo 26 de la Ley 1581 de 2012.</p>
+
+    <h3>9. Conservación</h3>
+    <p>Conservamos los datos de inscripción por un máximo de <strong>dos (2) años</strong>
+      desde la sesión, salvo solicitud previa de supresión o deber legal de conservarlos.</p>
+
+    <h3>10. Seguridad</h3>
+    <p>Acceso restringido por cuenta autenticada, transmisión cifrada mediante HTTPS y
+      recolección limitada a lo necesario. Los incidentes que comprometan datos personales
+      se reportan a la SIC dentro de los 15 días hábiles siguientes a su detección.</p>
+
+    <h3>11. Vigencia</h3>
+    <p>Rige desde 18 de agosto de 2026. Todo cambio sustancial en las finalidades será informado a los
+      titulares antes de aplicarse.</p>
+  </div>
+</div>
 <canvas id="lienzo" width="1080" height="1350"></canvas>
 
 <script>
 // ═══ Pega aquí la URL /exec de tu implementación de Apps Script ═══
 const URL_PUBLICA = 'https://encuestas-sesiones-comunidad.vercel.app';
+// Debe coincidir con VERSION_POLITICA del Apps Script: se guarda como prueba
+// de qué texto exacto aceptó la persona.
+const URL_POLITICA = URL_PUBLICA + '#politica';
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw0geUBN-6WtRunugaNthGI6DX6plQ89oRQt3MteynfrtFk7lny0GIhgkV9yk8_kX0/exec';
 
 
@@ -609,11 +747,28 @@ function pintarSesiones() {
 
 // ── envío
 $('enviar').addEventListener('click', enviar);
+// La política se abre en el mismo archivo. Así no hay forma de que el enlace
+// apunte a una página que todavía no se subió: si el formulario carga, la
+// política carga.
+function abrirPolitica(ev) { if (ev) ev.preventDefault(); $('modal').hidden = false;
+  document.body.style.overflow = 'hidden'; $('modal').scrollTop = 0; }
+function cerrarPolitica() { $('modal').hidden = true; document.body.style.overflow = ''; }
+
+$('ver-politica').addEventListener('click', abrirPolitica);
+$('cerrar-politica').addEventListener('click', cerrarPolitica);
+$('modal').addEventListener('click', function (ev) { if (ev.target === $('modal')) cerrarPolitica(); });
+document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') cerrarPolitica(); });
+// El correo enlaza a .../#politica y así abre directo en la política.
+// El hashchange cubre el caso de llegar al ancla sin recargar el documento.
+function revisarHash() { if (location.hash === '#politica') abrirPolitica(); }
+window.addEventListener('hashchange', revisarHash);
+revisarHash();
 
 async function enviar() {
   $('error').innerHTML = '';
   $('w-nombre').classList.remove('err');
   $('w-email').classList.remove('err');
+  document.querySelector('.check').classList.remove('err');
 
   const nombre = $('nombre').value.trim();
   const email = $('email').value.trim();
@@ -621,6 +776,10 @@ async function enviar() {
   if (!nombre) { return falla('Escribe tu nombre.', 'w-nombre'); }
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { return falla('Revisa el correo.', 'w-email'); }
   if (!listaEspera && !elegidas.size) { return falla('Elige al menos una sesión.'); }
+  if (!$('autoriza').checked) {
+    document.querySelector('.check').classList.add('err');
+    return falla('Necesitamos tu autorización para tratar tus datos y poder inscribirte.');
+  }
 
   const btn = $('enviar');
   btn.disabled = true;
@@ -633,6 +792,8 @@ async function enviar() {
     cargo: $('cargo').value.trim(),
     telefono: $('telefono').value.trim(),
     como_se_entero: $('como').value,
+    autoriza_datos: $('autoriza').checked,
+    version_politica: 'v1 · 2026-08-18',
     acepta_comunicaciones: $('acepta').checked,
     sesiones: listaEspera ? ['LISTA-ESPERA'] : Array.from(elegidas),
     origen_utm: location.search.replace(/^\?/, '') || 'directo'
@@ -669,7 +830,8 @@ function mensajeError(d) {
   const m = {
     nombre_requerido: 'Escribe tu nombre.',
     email_invalido: 'Revisa el correo.',
-    sin_sesiones: 'Elige al menos una sesión.'
+    sin_sesiones: 'Elige al menos una sesión.',
+    sin_autorizacion: 'Necesitamos tu autorización para tratar tus datos.'
   };
   if (m[d.error]) return m[d.error];
   if (d.rechazadas && d.rechazadas.length) {
