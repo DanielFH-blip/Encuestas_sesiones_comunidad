@@ -137,6 +137,9 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .acts button{width:auto;margin:0;flex:0 0 auto;font-size:12.5px;font-weight:700;
   letter-spacing:.02em;padding:11px 16px;border-radius:6px}
 .acts .sec{background:transparent;color:var(--cream);border:1px solid rgba(18,17,16,.28)}
+.acts-2{margin-top:11px}
+.acts-2 a{font-family:var(--fm);font-size:11px;letter-spacing:.1em;color:var(--muted-2);
+  text-decoration:underline}
 canvas{display:none}
 
 /* ── política dentro del propio formulario ── */
@@ -601,29 +604,78 @@ async function descargarPase(codigo) {
   }, 'image/png');
 }
 
-/** .ics para que la sesión quede en el calendario, no solo en la galería. */
-function descargarICS(codigo) {
-  const s = sesiones.filter(function (x) { return x.codigo === codigo; })[0];
-  if (!s) return;
-  const ini = new Date(s.fecha_iso + 'T' + s.hora + ':00-05:00');
+/** Rango del evento en UTC. Bogotá es GMT-5 todo el año, sin horario de verano. */
+function rangoUTC(s) {
+  const p = String(s.hora || '19:00').split(':');
+  const d = String(s.fecha_iso).split('-');
+  const ini = new Date(Date.UTC(+d[0], +d[1] - 1, +d[2], +p[0] + 5, +(p[1] || 0)));
   const fin = new Date(ini.getTime() + (s.duracion_min || 60) * 60000);
-  const z = function (d) { return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'; };
-  const ics = [
+  const z = function (x) { return x.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'; };
+  return { ini: z(ini), fin: z(fin) };
+}
+
+/** Un toque, sin descargar nada: es lo que funciona en la mayoría de teléfonos. */
+function urlGoogleCalendar(s) {
+  const r = rangoUTC(s);
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    '&text=' + encodeURIComponent(s.destino + ' · Vectiva Consulting') +
+    '&dates=' + r.ini + '/' + r.fin +
+    '&details=' + encodeURIComponent(
+      (s.equipaje ? s.equipaje + '\n\n' : '') + 'Programación: ' + URL_PUBLICA) +
+    '&location=' + encodeURIComponent(s.modalidad || 'En línea');
+}
+
+/**
+ * ICS con los caracteres escapados. Aquí estaba el error: las comas y los punto
+ * y coma del texto de equipaje son separadores dentro del formato, y sin escapar
+ * el archivo queda corrupto. La app de calendario lo rechaza sin decir nada, que
+ * es justo lo que veías. La versión del correo sí escapaba; esta no.
+ */
+function textoICS(s, codigo) {
+  const r = rangoUTC(s);
+  const esc = function (t) {
+    return String(t || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;')
+                          .replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  };
+  return [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Vectiva//Sesiones//ES',
-    'BEGIN:VEVENT', 'UID:' + codigo + '@vectiva.co', 'DTSTAMP:' + z(new Date()),
-    'DTSTART:' + z(ini), 'DTEND:' + z(fin),
-    'SUMMARY:' + s.destino + ' · Vectiva',
-    'DESCRIPTION:' + (s.equipaje || '') + '\\nAcceso: ' + URL_PUBLICA,
-    'LOCATION:' + (s.modalidad || 'En línea'),
+    'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:' + codigo + '-' + r.ini + '@vectivaconsulting.com',
+    'DTSTAMP:' + r.ini, 'DTSTART:' + r.ini, 'DTEND:' + r.fin,
+    'SUMMARY:' + esc(s.destino + ' · Vectiva Consulting'),
+    'DESCRIPTION:' + esc((s.equipaje ? s.equipaje + '\n\n' : '') +
+      'Programación: ' + URL_PUBLICA),
+    'LOCATION:' + esc(s.modalidad || 'En línea'),
+    'STATUS:CONFIRMED',
     'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY',
     'DESCRIPTION:Tu sesión empieza en 30 minutos', 'END:VALARM',
     'END:VEVENT', 'END:VCALENDAR'
   ].join('\r\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
-  a.download = 'sesion-' + codigo.toLowerCase() + '.ics';
-  document.body.appendChild(a); a.click(); a.remove();
 }
+
+function abrirCalendario(codigo) {
+  const s = sesiones.filter(function (x) { return x.codigo === codigo; })[0];
+  if (s) window.open(urlGoogleCalendar(s), '_blank', 'noopener');
+}
+
+function descargarICS(codigo) {
+  const s = sesiones.filter(function (x) { return x.codigo === codigo; })[0];
+  if (!s) return;
+  const texto = textoICS(s, codigo);
+  const a = document.createElement('a');
+  a.download = 'sesion-' + codigo.toLowerCase() + '.ics';
+  // Safari en iOS ignora "download" sobre una URL de blob; con data URI al menos
+  // abre la hoja de importación del calendario.
+  const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  a.href = esIOS
+    ? 'data:text/calendar;charset=utf-8,' + encodeURIComponent(texto)
+    : URL.createObjectURL(new Blob([texto], { type: 'text/calendar;charset=utf-8' }));
+  document.body.appendChild(a); a.click(); a.remove();
+  if (!esIOS) setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
+}
+
+
 
 const $ = function (id) { return document.getElementById(id); };
 let sesiones = [];
@@ -858,8 +910,10 @@ function confirmar(nombre, d) {
         (s.hora || r.hora || '') + ' · GMT-5 · ' + (s.modalidad || 'EN LÍNEA') + '</small>' +
       '<div class="acts">' +
         '<button data-pase="' + r.codigo + '">Descargar mi pase</button>' +
-        '<button class="sec" data-cal="' + r.codigo + '">Agregar al calendario</button>' +
+        '<button class="sec" data-cal="' + r.codigo + '">Añadir al calendario</button>' +
       '</div>' +
+      '<div class="acts-2"><a href="#" data-ics="' + r.codigo + '">' +
+        'Descargar .ics para Apple Calendar u Outlook</a></div>' +
     '</div>';
   }).join('');
 
@@ -869,7 +923,10 @@ function confirmar(nombre, d) {
     b.addEventListener('click', function () { descargarPase(b.dataset.pase); });
   });
   Array.prototype.forEach.call($('ok-stubs').querySelectorAll('[data-cal]'), function (b) {
-    b.addEventListener('click', function () { descargarICS(b.dataset.cal); });
+    b.addEventListener('click', function () { abrirCalendario(b.dataset.cal); });
+  });
+  Array.prototype.forEach.call($('ok-stubs').querySelectorAll('[data-ics]'), function (b) {
+    b.addEventListener('click', function (ev) { ev.preventDefault(); descargarICS(b.dataset.ics); });
   });
 
   $('vista-form').hidden = true;
