@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sesiones · Vectiva Consulting</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/bebas-neue/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-sans/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-sans/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-sans/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-sans/800.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/500.css">
+<style>
+/* ════════════════════════════════════════════════════════════
+   PEGA AQUÍ LA URL /exec DE TU IMPLEMENTACIÓN DE APPS SCRIPT
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#F6F4EF; --deep:#EBE8E0; --card:#FCFBF8;
+  --cream:#121110; --muted:#5C5854; --muted-2:#8A857F;
+  --acid:#0052FF; --cyan:#00C3FF;
+  --hair:rgba(18,17,16,.13);
+  --fd:'Bebas Neue',sans-serif; --fb:'DM Sans',sans-serif; --fm:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--deep);font-family:var(--fb);color:var(--cream);
+  padding:28px 18px 64px;display:flex;justify-content:center;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")}
+.wrap{width:100%;max-width:640px}
+
+/* ── tarjeta ── */
+.sheet{background:var(--card);border-radius:14px;position:relative;overflow:hidden;
+  box-shadow:0 20px 44px rgba(18,17,16,.13),0 2px 6px rgba(18,17,16,.07);
+  padding:40px 34px}
+.sheet::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;
+  background:linear-gradient(180deg,var(--cyan) 0%,var(--acid) 60%)}
+
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-m{font-weight:800;font-size:21px;letter-spacing:.15em;line-height:1;display:block}
+.logo-s{font-weight:500;font-size:10.5px;letter-spacing:.25em;line-height:1;display:block;margin-top:4px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 11px rgba(0,195,255,.85);flex-shrink:0}
+.stamp{font-family:var(--fm);font-size:11px;letter-spacing:.2em;color:var(--muted-2);
+  text-align:right;line-height:1.7;padding-top:4px}
+
+h1{font-family:var(--fd);font-size:clamp(52px,13vw,78px);line-height:.86;letter-spacing:.03em;margin-top:30px}
+.sub{font-family:var(--fm);font-weight:500;font-size:clamp(11px,2.6vw,13px);
+  letter-spacing:.18em;color:var(--muted);margin-top:14px}
+
+.lbl{font-family:var(--fm);font-size:11px;letter-spacing:.24em;color:var(--muted-2);
+  margin:34px 0 14px;display:block}
+
+/* ── sesiones seleccionables ── */
+.opt{display:block;border:1px solid var(--hair);border-radius:8px;padding:16px 16px 16px 14px;
+  margin-bottom:10px;cursor:pointer;position:relative;transition:border-color .15s,background .15s}
+.opt:hover{border-color:rgba(18,17,16,.28)}
+.opt.sel{border-color:var(--acid);background:rgba(0,82,255,.035);box-shadow:inset 2px 0 0 var(--acid)}
+.opt.off{opacity:.5;cursor:not-allowed}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt-top{display:flex;align-items:center;gap:12px}
+.flap{display:flex;gap:4px;flex-shrink:0}
+.flap i{--tw:34px;--th:44px;--nr:2.5px;--fs:40px;
+  position:relative;width:var(--tw);height:var(--th);border-radius:2px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-family:var(--fd);
+  font-size:var(--fs);color:var(--cream);font-style:normal;line-height:1;
+  padding-top:calc(var(--fs)*.065);
+  background:
+    radial-gradient(circle var(--nr) at 0 50%, var(--card) 0 var(--nr), rgba(0,0,0,0) var(--nr)),
+    radial-gradient(circle var(--nr) at 100% 50%, var(--card) 0 var(--nr), rgba(0,0,0,0) var(--nr)),
+    linear-gradient(180deg,#F1EEE7 0%,#EAE6DD 49.9%,#E2DDD2 50.1%,#D9D3C7 100%)}
+.flap i::before{content:"";position:absolute;left:0;right:0;top:50%;height:6px;z-index:2;
+  background:linear-gradient(180deg,rgba(18,17,16,.18),rgba(18,17,16,0))}
+.flap i::after{content:"";position:absolute;left:var(--nr);right:var(--nr);top:calc(50% - 1px);
+  height:2px;z-index:3;background:rgba(18,17,16,.30)}
+.mon{font-family:var(--fd);font-size:28px;line-height:1;padding-top:2px}
+.opt-t{font-family:var(--fd);font-size:clamp(26px,6vw,34px);line-height:1;flex:1;min-width:0}
+.opt-meta{font-family:var(--fm);font-size:11.5px;letter-spacing:.12em;color:var(--muted);
+  margin-top:12px;padding-left:2px}
+.tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--fm);font-weight:500;
+  font-size:10.5px;letter-spacing:.14em;color:var(--muted);margin-top:10px}
+.tag b{width:8px;height:8px;border-radius:50%;display:block}
+.tag.on b{background:var(--acid)}
+.tag.next b{border:1.5px solid var(--acid)}
+.tag.full b{background:var(--muted-2)}
+
+/* ── campos ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}}
+.f{display:block}
+.f span{font-family:var(--fm);font-size:10.5px;letter-spacing:.22em;color:var(--muted-2);display:block;margin-bottom:7px}
+.f input,.f select{width:100%;font-family:var(--fb);font-size:16px;color:var(--cream);
+  background:transparent;border:none;border-bottom:1px solid rgba(18,17,16,.28);
+  padding:8px 0;border-radius:0;outline:none}
+.f input:focus,.f select:focus{border-bottom-color:var(--acid)}
+.f.err input{border-bottom-color:#C2261B}
+.check{display:flex;gap:11px;align-items:flex-start;margin-top:26px;
+  font-size:14px;line-height:1.5;color:var(--muted);cursor:pointer}
+.check input{margin-top:3px;accent-color:var(--acid);width:16px;height:16px;flex-shrink:0}
+
+button{width:100%;margin-top:28px;background:var(--acid);color:#fff;border:none;
+  font-family:var(--fb);font-weight:700;font-size:19px;letter-spacing:.01em;
+  padding:19px;border-radius:7px;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+
+.note{font-family:var(--fm);font-size:10.5px;letter-spacing:.16em;color:var(--muted-2);
+  margin-top:18px;text-align:center;line-height:1.9}
+.msg{margin-top:18px;font-size:14px;line-height:1.5;padding:14px 16px;border-radius:7px}
+.msg.bad{background:rgba(194,38,27,.07);color:#8E1C14}
+.state{font-family:var(--fm);font-size:12px;letter-spacing:.16em;color:var(--muted-2);padding:26px 0}
+
+/* ── confirmación: talones ── */
+.done h2{font-family:var(--fd);font-size:clamp(44px,11vw,64px);line-height:.9;margin-top:26px}
+.done p{font-size:16px;line-height:1.6;color:var(--muted);margin-top:14px}
+.perf{position:relative;height:2px;margin:30px -34px 0;
+  background:repeating-linear-gradient(90deg,rgba(18,17,16,.30) 0 8px,rgba(0,0,0,0) 8px 16px)}
+.perf::before,.perf::after{content:"";position:absolute;top:-11px;width:22px;height:22px;
+  border-radius:50%;background:var(--deep)}
+.perf::before{left:-11px}.perf::after{right:-11px}
+.stubs{margin:0 -34px -40px;padding:26px 34px 34px;
+  background:repeating-linear-gradient(45deg,rgba(18,17,16,.035) 0 1px,rgba(0,0,0,0) 1px 8px),var(--deep)}
+.stub{padding:14px 0;border-bottom:1px solid rgba(18,17,16,.12)}
+.stub:last-child{border-bottom:none}
+.stub em{font-family:var(--fm);font-weight:500;font-size:12px;letter-spacing:.18em;
+  color:var(--muted);font-style:normal;display:block}
+.stub strong{font-family:var(--fd);font-size:30px;font-weight:400;line-height:1.05;display:block;margin-top:7px}
+.stub small{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);display:block;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sheet">
+
+    <div class="head">
+      <div class="logo">
+        <div><span class="logo-m">VECTIVA</span><span class="logo-s">CONSULTING</span></div>
+        <span class="dot"></span>
+      </div>
+      <div class="stamp">BOG · GMT-5<br>SERIE 2026</div>
+    </div>
+
+    <!-- ── formulario ── -->
+    <div id="vista-form">
+      <h1>SALIDAS</h1>
+      <div class="sub">SESIONES DE IA EN VIVO · VIRTUAL · SIN COSTO</div>
+
+      <span class="lbl">ELIGE TUS SESIONES · PUEDES MARCAR VARIAS</span>
+      <div id="sesiones"><div class="state">CARGANDO PROGRAMACIÓN…</div></div>
+
+      <span class="lbl">TUS DATOS</span>
+      <div class="grid">
+        <label class="f" id="w-nombre"><span>NOMBRE Y APELLIDO</span><input id="nombre" autocomplete="name"></label>
+        <label class="f" id="w-email"><span>CORREO</span><input id="email" type="email" inputmode="email" autocomplete="email"></label>
+        <label class="f"><span>EMPRESA</span><input id="empresa" autocomplete="organization"></label>
+        <label class="f"><span>CARGO</span><input id="cargo" autocomplete="organization-title"></label>
+        <label class="f"><span>TELÉFONO (OPCIONAL)</span><input id="telefono" inputmode="tel" autocomplete="tel"></label>
+        <label class="f"><span>¿CÓMO TE ENTERASTE?</span>
+          <select id="como">
+            <option value="">Elige una opción</option>
+            <option>Me lo reenvió alguien</option>
+            <option>LinkedIn</option>
+            <option>WhatsApp</option>
+            <option>Correo de Vectiva</option>
+            <option>Ya conocía a Vectiva</option>
+            <option>Otro</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="acepta">
+        <span>Quiero recibir la programación de las próximas sesiones.</span>
+      </label>
+
+      <button id="enviar">Reserva tu lugar</button>
+      <div id="error"></div>
+      <div class="note">SIN COSTO · CUPOS LIMITADOS<br>TE LLEGA UN CORREO CON TU PASE</div>
+    </div>
+
+    <!-- ── confirmación ── -->
+    <div id="vista-ok" class="done" hidden>
+      <h2>LISTO</h2>
+      <p id="ok-texto"></p>
+      <div class="perf"></div>
+      <div class="stubs" id="ok-stubs"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══ Pega aquí la URL /exec de tu implementación de Apps Script ═══
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw0geUBN-6WtRunugaNthGI6DX6plQ89oRQt3MteynfrtFk7lny0GIhgkV9yk8_kX0/exec';
+
+const $ = function (id) { return document.getElementById(id); };
+let sesiones = [];
+const elegidas = new Set();
+
+// ── cargar programación desde la hoja
+cargar();
+
+async function cargar() {
+  $('sesiones').innerHTML = '<div class="state">CARGANDO PROGRAMACIÓN…</div>';
+
+  // Fallas de configuración: se detectan antes de gastar una petición.
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(WEB_APP_URL)) {
+    return diagnostico('La URL del Apps Script no tiene el formato correcto.',
+      'Debe ser https://script.google.com/macros/s/TU_ID/exec — sin /dev y sin nada después de /exec.');
+  }
+  if (location.protocol === 'file:') {
+    return diagnostico('Estás abriendo el archivo desde el disco.',
+      'El navegador bloquea la petición desde file://. Súbelo a un servidor o córrelo local ' +
+      'con "python3 -m http.server" y ábrelo en http://localhost:8000.');
+  }
+
+  try {
+    const r = await fetch(WEB_APP_URL + '?action=sesiones');
+    const texto = await r.text();
+
+    // Apps Script devuelve HTML —no JSON— cuando pide iniciar sesión.
+    if (texto.trim().charAt(0) === '<') {
+      return diagnostico('El Apps Script está pidiendo iniciar sesión.',
+        'En Implementar → Gestionar implementaciones, pon "Quién tiene acceso: Cualquier persona" ' +
+        'y "Ejecutar como: Yo". Guarda como versión nueva.');
+    }
+    if (!r.ok) {
+      return diagnostico('El servidor respondió ' + r.status + '.',
+        'Revisa que la URL termine en /exec y que la implementación esté activa.');
+    }
+
+    const d = JSON.parse(texto);
+    if (!d.ok) {
+      return diagnostico('El Apps Script respondió con error: ' + (d.error || 'desconocido') + '.',
+        'Revisa la hoja Log dentro del Sheet.');
+    }
+    if (!d.sesiones || !d.sesiones.length) return vacio();
+
+    sesiones = d.sesiones;
+    pintarSesiones();
+
+  } catch (e) {
+    console.error('[Vectiva] fallo al cargar sesiones:', e);
+    diagnostico('No se pudo contactar el Apps Script.',
+      'Suele ser la implementación sin permiso público, o una URL vieja. ' +
+      'Si editaste el script, tienes que crear una versión nueva para que los cambios salgan.');
+  }
+}
+
+/** Muestra la causa real en pantalla en vez de un mensaje genérico. */
+function diagnostico(titulo, ayuda) {
+  $('sesiones').innerHTML =
+    '<div class="msg bad" style="margin-top:0">' +
+      '<strong>' + titulo + '</strong><br>' + ayuda +
+      '<br><br><a href="#" id="reintentar" style="color:#8E1C14;font-weight:700">Reintentar</a>' +
+    '</div>';
+  $('enviar').disabled = true;
+  const link = $('reintentar');
+  if (link) link.addEventListener('click', function (ev) {
+    ev.preventDefault(); $('enviar').disabled = false; cargar();
+  });
+}
+
+function vacio() {
+  $('sesiones').innerHTML =
+    '<div class="state">NO HAY SESIONES ABIERTAS EN ESTE MOMENTO.<br>VUELVE PRONTO.</div>';
+  $('enviar').disabled = true;
+}
+
+function pintarSesiones() {
+  $('sesiones').innerHTML = sesiones.map(function (s) {
+    const llena = s.estado === 'LLENA' || s.cupos_restantes === 0;
+    const clase = llena ? 'full' : (s.estado === 'ABIERTA' ? 'on' : 'next');
+    const etiqueta = llena ? 'SIN CUPOS' : s.estado;
+    const restantes = (!llena && s.cupos_restantes !== null && s.cupos_restantes <= 15)
+      ? ' · QUEDAN ' + s.cupos_restantes : '';
+    const dia = String(s.dia).split('');
+
+    return '' +
+    '<label class="opt' + (llena ? ' off' : '') + '" data-c="' + s.codigo + '">' +
+      '<input type="checkbox" value="' + s.codigo + '"' + (llena ? ' disabled' : '') + '>' +
+      '<div class="opt-top">' +
+        '<div class="flap"><i>' + dia[0] + '</i><i>' + dia[1] + '</i></div>' +
+        '<div class="mon">' + s.mes_corto + '</div>' +
+        '<div class="opt-t">' + s.destino.toUpperCase() + '</div>' +
+      '</div>' +
+      '<div class="opt-meta">' + s.codigo + ' · ' + s.hora + ' · ' +
+        Math.round(s.duracion_min / 60) + 'H · ' + s.modalidad + '</div>' +
+      '<div class="tag ' + clase + '"><b></b>' + etiqueta + restantes + '</div>' +
+    '</label>';
+  }).join('');
+
+  // El <label> ya activa su <input> de forma nativa: solo escuchamos el cambio.
+  // Alternar checked a mano aquí lo revierte y la selección nunca queda marcada.
+  Array.prototype.forEach.call(document.querySelectorAll('.opt'), function (el) {
+    const input = el.querySelector('input');
+    if (input.disabled) return;
+    input.addEventListener('change', function () {
+      el.classList.toggle('sel', input.checked);
+      if (input.checked) elegidas.add(input.value); else elegidas.delete(input.value);
+    });
+  });
+}
+
+// ── envío
+$('enviar').addEventListener('click', enviar);
+
+async function enviar() {
+  $('error').innerHTML = '';
+  $('w-nombre').classList.remove('err');
+  $('w-email').classList.remove('err');
+
+  const nombre = $('nombre').value.trim();
+  const email = $('email').value.trim();
+
+  if (!nombre) { return falla('Escribe tu nombre.', 'w-nombre'); }
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { return falla('Revisa el correo.', 'w-email'); }
+  if (!elegidas.size) { return falla('Elige al menos una sesión.'); }
+
+  const btn = $('enviar');
+  btn.disabled = true;
+  btn.textContent = 'Reservando…';
+
+  const cuerpo = {
+    nombre: nombre,
+    email: email,
+    empresa: $('empresa').value.trim(),
+    cargo: $('cargo').value.trim(),
+    telefono: $('telefono').value.trim(),
+    como_se_entero: $('como').value,
+    acepta_comunicaciones: $('acepta').checked,
+    sesiones: Array.from(elegidas),
+    origen_utm: location.search.replace(/^\?/, '') || 'directo'
+  };
+
+  try {
+    // text/plain a propósito: evita el preflight OPTIONS que Apps Script no responde.
+    const r = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(cuerpo)
+    });
+    const d = await r.json();
+
+    if (!d.ok) {
+      btn.disabled = false;
+      btn.textContent = 'Reserva tu lugar';
+      return falla(mensajeError(d));
+    }
+    confirmar(nombre, d);
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Reserva tu lugar';
+    falla('No pudimos completar la reserva. Intenta de nuevo en un momento.');
+  }
+}
+
+function mensajeError(d) {
+  const m = {
+    nombre_requerido: 'Escribe tu nombre.',
+    email_invalido: 'Revisa el correo.',
+    sin_sesiones: 'Elige al menos una sesión.'
+  };
+  if (m[d.error]) return m[d.error];
+  if (d.rechazadas && d.rechazadas.length) {
+    const sc = d.rechazadas.filter(function (x) { return x.motivo === 'sin_cupos'; });
+    if (sc.length) return 'Se agotaron los cupos de ' + sc.map(function (x) { return x.codigo; }).join(', ') + '.';
+  }
+  return 'No pudimos completar la reserva. Intenta de nuevo.';
+}
+
+function falla(texto, campo) {
+  if (campo) $(campo).classList.add('err');
+  $('error').innerHTML = '<div class="msg bad">' + texto + '</div>';
+}
+
+function confirmar(nombre, d) {
+  const n = d.resultados.length;
+  $('ok-texto').textContent = nombre.split(' ')[0] + ', quedaste inscrito en ' +
+    (n === 1 ? 'la sesión.' : n + ' sesiones.') +
+    ' Te enviamos el pase por correo — guárdalo, y reenvíalo a alguien más.';
+
+  $('ok-stubs').innerHTML = d.resultados.map(function (r) {
+    const s = sesiones.filter(function (x) { return x.codigo === r.codigo; })[0] || {};
+    const repetida = r.estado === 'ya_inscrito' ? ' · YA ESTABAS INSCRITO' : '';
+    return '<div class="stub">' +
+      '<em>' + r.serial + repetida + '</em>' +
+      '<strong>' + (s.destino || r.destino || '').toUpperCase() + '</strong>' +
+      '<small>' + (s.dia || '') + ' ' + (s.mes_corto || '') + ' · ' +
+        (s.hora || r.hora || '') + ' · GMT-5 · ' + (s.modalidad || 'EN LÍNEA') + '</small>' +
+    '</div>';
+  }).join('');
+
+  $('vista-form').hidden = true;
+  $('vista-ok').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
