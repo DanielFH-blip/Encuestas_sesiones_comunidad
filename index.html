@@ -126,6 +126,11 @@ button:disabled{opacity:.45;cursor:not-allowed}
   color:var(--muted);font-style:normal;display:block}
 .stub strong{font-family:var(--fd);font-size:30px;font-weight:400;line-height:1.05;display:block;margin-top:7px}
 .stub small{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;color:var(--muted);display:block;margin-top:6px}
+.acts{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+.acts button{width:auto;margin:0;flex:0 0 auto;font-size:12.5px;font-weight:700;
+  letter-spacing:.02em;padding:11px 16px;border-radius:6px}
+.acts .sec{background:transparent;color:var(--cream);border:1px solid rgba(18,17,16,.28)}
+canvas{display:none}
 </style>
 </head>
 <body>
@@ -188,13 +193,307 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
   </div>
 </div>
+<canvas id="lienzo" width="1080" height="1350"></canvas>
 
 <script>
 // ═══ Pega aquí la URL /exec de tu implementación de Apps Script ═══
+const URL_PUBLICA = 'https://encuestas-sesiones-comunidad.vercel.app';
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw0geUBN-6WtRunugaNthGI6DX6plQ89oRQt3MteynfrtFk7lny0GIhgkV9yk8_kX0/exec';
+
+
+// ═══════════════════════════════════════════════════════════════
+//  PASE DESCARGABLE
+//  Se dibuja en canvas y no con html2canvas: el canvas 2D sí usa
+//  las fuentes ya cargadas del documento, y así el PNG sale con
+//  Bebas y JetBrains de verdad en vez de una sustituta del sistema.
+// ═══════════════════════════════════════════════════════════════
+
+let ultimo = null;
+const QR_B64 = 'data:image/png;base64,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';
+
+const T = {
+  surface:'#EBE8E0', card:'#FCFBF8', ink:'#121110',
+  muted:'#5C5854', muted2:'#8A857F', acid:'#0052FF', cyan:'#00C3FF',
+  hair:'rgba(18,17,16,.13)', stub:'#EBE8E0'
+};
+
+/** Texto con tracking real, carácter por carácter.
+ *  ctx.letterSpacing solo existe en Chromium; esto funciona en todos. */
+function txtLS(c, texto, x, y, esp, alinear) {
+  const chars = String(texto).split('');
+  let ancho = 0;
+  chars.forEach(function (ch) { ancho += c.measureText(ch).width + esp; });
+  ancho -= esp;
+  let cx = alinear === 'right' ? x - ancho : x;
+  chars.forEach(function (ch) {
+    c.fillText(ch, cx, y);
+    cx += c.measureText(ch).width + esp;
+  });
+  return ancho;
+}
+
+function rrect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+}
+
+/** Una aleta: dos mitades, costura por encima del dígito y muescas de eje. */
+function flap(c, d, x, y, w, h) {
+  const r = 4, nr = 5;
+  c.save();
+  rrect(c, x, y, w, h, r); c.clip();
+  let g = c.createLinearGradient(0, y, 0, y + h / 2);
+  g.addColorStop(0, '#F1EEE7'); g.addColorStop(1, '#EAE6DD');
+  c.fillStyle = g; c.fillRect(x, y, w, h / 2);
+  g = c.createLinearGradient(0, y + h / 2, 0, y + h);
+  g.addColorStop(0, '#E2DDD2'); g.addColorStop(1, '#D9D3C7');
+  c.fillStyle = g; c.fillRect(x, y + h / 2, w, h / 2);
+
+  c.fillStyle = T.ink;
+  c.font = '400 ' + Math.round(h * 0.87) + 'px "Bebas Neue"';
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  c.fillText(d, x + w / 2, y + h * 0.795);
+
+  g = c.createLinearGradient(0, y + h / 2, 0, y + h / 2 + 9);
+  g.addColorStop(0, 'rgba(18,17,16,.20)'); g.addColorStop(1, 'rgba(18,17,16,0)');
+  c.fillStyle = g; c.fillRect(x, y + h / 2, w, 9);
+
+  c.fillStyle = 'rgba(18,17,16,.30)';
+  c.fillRect(x + nr, y + h / 2 - 1.5, w - nr * 2, 3);
+  c.restore();
+
+  c.fillStyle = T.card;
+  [x, x + w].forEach(function (px) {
+    c.beginPath(); c.arc(px, y + h / 2, nr, 0, Math.PI * 2); c.fill();
+  });
+}
+
+function campo(c, etiqueta, valor, x, y) {
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.fillStyle = T.muted2; c.font = '400 15px "JetBrains Mono"';
+  txtLS(c, etiqueta, x, y, 3.6);
+  c.fillStyle = T.ink; c.font = '400 38px "Bebas Neue"';
+  c.fillText(valor, x, y + 42);
+}
+
+async function dibujarPase(codigo) {
+  const r = ultimo.resultados.filter(function (x) { return x.codigo === codigo; })[0];
+  const s = sesiones.filter(function (x) { return x.codigo === codigo; })[0] || {};
+  const c = $('lienzo').getContext('2d');
+
+  await document.fonts.ready;
+  await Promise.all([
+    document.fonts.load('400 100px "Bebas Neue"'),
+    document.fonts.load('400 20px "JetBrains Mono"'),
+    document.fonts.load('500 20px "JetBrains Mono"'),
+    document.fonts.load('700 20px "DM Sans"'),
+    document.fonts.load('800 20px "DM Sans"')
+  ]);
+
+  const W = 1080, H = 1350, M = 52;
+  const cx = M, cy = M, cw = W - M * 2, ch = H - M * 2;
+  const px = cx + 72, pr = cx + cw - 72;
+
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = T.surface; c.fillRect(0, 0, W, H);
+
+  c.save();
+  c.shadowColor = 'rgba(18,17,16,.16)'; c.shadowBlur = 44; c.shadowOffsetY = 20;
+  c.fillStyle = T.card; rrect(c, cx, cy, cw, ch, 14); c.fill();
+  c.restore();
+
+  c.save();
+  rrect(c, cx, cy, cw, ch, 14); c.clip();
+
+  // espina
+  const esp = c.createLinearGradient(0, cy, 0, cy + ch);
+  esp.addColorStop(0, T.cyan); esp.addColorStop(.6, T.acid); esp.addColorStop(1, T.acid);
+  c.fillStyle = esp; c.fillRect(cx, cy, 6, ch);
+
+  let y = cy + 48;
+
+  // logo
+  c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+  c.fillStyle = T.ink; c.font = '800 27px "DM Sans"';
+  const wLogo = txtLS(c, 'VECTIVA', px, y + 22, 4.05);
+  c.font = '500 13.5px "DM Sans"';
+  txtLS(c, 'CONSULTING', px, y + 44, 3.4);
+  c.fillStyle = T.cyan;
+  c.beginPath(); c.arc(px + wLogo + 14, y + 26, 5, 0, Math.PI * 2); c.fill();
+
+  // sello
+  c.fillStyle = T.muted2; c.font = '400 19px "JetBrains Mono"'; c.textAlign = 'left';
+  txtLS(c, 'PASE ' + codigo, pr, y + 20, 4.2, 'right');
+  txtLS(c, 'SERIE 2026 · Nº ' + r.serial.split('Nº ')[1], pr, y + 48, 4.2, 'right');
+
+  y += 42 + 48;
+
+  // salida
+  c.fillStyle = T.muted2; c.font = '400 17px "JetBrains Mono"';
+  txtLS(c, 'SALIDA', px, y, 4.4);
+  y += 24;
+  const dia = String(s.dia || '00');
+  flap(c, dia[0], px, y, 88, 114);
+  flap(c, dia[1], px + 94, y, 88, 114);
+  c.fillStyle = T.ink; c.font = '400 74px "Bebas Neue"'; c.textAlign = 'left';
+  c.fillText((s.mes_largo || '').toUpperCase(), px + 204, y + 82);
+  y += 114 + 34;
+  c.fillStyle = T.muted; c.font = '500 23px "JetBrains Mono"';
+  txtLS(c, (s.hora || '19:00') + ' · ' + Math.round((s.duracion_min || 60) / 60) + ' HORA · GMT-5', px, y, 3.2);
+
+  y += 46;
+  c.fillStyle = T.hair; c.fillRect(px, y, pr - px, 1);
+  y += 46;
+
+  // de → a
+  c.fillStyle = T.muted2; c.font = '400 15px "JetBrains Mono"';
+  txtLS(c, 'DE', px, y, 3.6);
+  txtLS(c, 'A', px + 340, y, 3.6);
+  c.fillStyle = T.muted; c.font = '400 52px "Bebas Neue"'; c.textAlign = 'left';
+  c.fillText((s.origen || '').toUpperCase(), px, y + 50);
+  c.strokeStyle = T.muted; c.lineWidth = 2;
+  c.beginPath(); c.moveTo(px + 258, y + 36); c.lineTo(px + 304, y + 36);
+  c.moveTo(px + 298, y + 30); c.lineTo(px + 304, y + 36); c.lineTo(px + 298, y + 42);
+  c.stroke();
+  c.fillStyle = T.ink; c.font = '400 76px "Bebas Neue"';
+  envolver(c, (s.destino || '').toUpperCase(), px + 340, y + 62, pr - px - 340, 70);
+
+  y += 190;
+  c.fillStyle = T.hair; c.fillRect(px, y, pr - px, 1);
+  y += 28;
+
+  const anchoCampo = (pr - px) / 4;
+  campo(c, 'PASAJERO', (ultimo.nombre || '').toUpperCase(), px, y);
+  campo(c, 'PUERTA', (s.modalidad || 'EN LÍNEA'), px + anchoCampo * 1.35, y);
+  campo(c, 'EMBARQUE', restar5(s.hora || '19:00'), px + anchoCampo * 2.25, y);
+  campo(c, 'TARIFA', 'SIN COSTO', px + anchoCampo * 3.05, y);
+
+  y += 78;
+  c.fillStyle = T.hair; c.fillRect(px, y, pr - px, 1);
+  y += 26;
+  c.fillStyle = T.muted2; c.font = '400 15px "JetBrains Mono"';
+  txtLS(c, 'EQUIPAJE PERMITIDO', px, y, 3.6);
+  c.fillStyle = T.ink; c.font = '400 25px "DM Sans"';
+  envolver(c, s.equipaje || '', px, y + 34, pr - px - 120, 36);
+
+  // cierre: en un pase ya descargado el llamado no es reservar, es pasarlo
+  const yPerf = cy + ch - 210;
+  c.fillStyle = T.hair; c.fillRect(px, yPerf - 92, pr - px, 1);
+  c.fillStyle = T.ink; c.font = '700 28px "DM Sans"'; c.textAlign = 'left';
+  c.fillText('Guárdalo. Y reenvíalo a alguien más.', px, yPerf - 52);
+  c.fillStyle = T.muted; c.font = '500 20px "JetBrains Mono"';
+  txtLS(c, URL_PUBLICA.replace('https://', ''), px, yPerf - 22, 1.2);
+
+  // perforación
+  c.fillStyle = 'rgba(18,17,16,.30)';
+  for (let x = cx; x < cx + cw; x += 16) c.fillRect(x, yPerf, 8, 2);
+
+  // talón
+  c.fillStyle = T.stub; c.fillRect(cx, yPerf + 2, cw, ch - (yPerf + 2 - cy));
+  c.strokeStyle = 'rgba(18,17,16,.035)'; c.lineWidth = 1;
+  for (let d = -ch; d < cw + ch; d += 11) {
+    c.beginPath(); c.moveTo(cx + d, yPerf + 2); c.lineTo(cx + d + ch, cy + ch); c.stroke();
+  }
+  c.fillStyle = T.surface;
+  [cx, cx + cw].forEach(function (nx) {
+    c.beginPath(); c.arc(nx, yPerf + 1, 12, 0, Math.PI * 2); c.fill();
+  });
+
+  const ys = yPerf + 70;
+  c.textAlign = 'left';
+  [['PASE', codigo], ['SALIDA', (s.dia || '') + '.' + mesNum(s) + ' · ' + (s.hora || '')],
+   ['ACCESO', 'encuestas-sesiones-comunidad.vercel.app']].forEach(function (par, i) {
+    const fx = px + i * 200;
+    c.fillStyle = T.muted2; c.font = '400 14px "JetBrains Mono"';
+    txtLS(c, par[0], fx, ys, 3.1);
+    c.fillStyle = T.ink;
+    c.font = '500 ' + (par[1].length > 22 ? 14 : 21) + 'px "JetBrains Mono"';
+    txtLS(c, par[1], fx, ys + 30, par[1].length > 22 ? 0.4 : 1.1);
+  });
+
+  await new Promise(function (res) {
+    const img = new Image();
+    img.onload = function () {
+      c.fillStyle = T.card; rrect(c, pr - 96, ys - 34, 96, 96, 3); c.fill();
+      c.drawImage(img, pr - 91, ys - 29, 86, 86);
+      res();
+    };
+    img.onerror = res;
+    img.src = QR_B64;
+  });
+
+  c.restore();
+  return $('lienzo');
+}
+
+/** Bebas no parte líneas solo: hay que medir y romper a mano. */
+function envolver(c, texto, x, y, ancho, alto) {
+  const palabras = String(texto).split(' ');
+  let linea = '', cy2 = y;
+  palabras.forEach(function (p) {
+    const prueba = linea ? linea + ' ' + p : p;
+    if (c.measureText(prueba).width > ancho && linea) {
+      c.fillText(linea, x, cy2); cy2 += alto; linea = p;
+    } else { linea = prueba; }
+  });
+  if (linea) c.fillText(linea, x, cy2);
+}
+
+function restar5(hhmm) {
+  const p = String(hhmm).split(':');
+  let m = (+p[0]) * 60 + (+p[1] || 0) - 5;
+  return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2);
+}
+function mesNum(s) {
+  const m = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+            .indexOf(s.mes_corto) + 1;
+  return ('0' + m).slice(-2);
+}
+
+async function descargarPase(codigo) {
+  const lienzo = await dibujarPase(codigo);
+  lienzo.toBlob(function (blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pase-vectiva-' + codigo.toLowerCase() + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }, 'image/png');
+}
+
+/** .ics para que la sesión quede en el calendario, no solo en la galería. */
+function descargarICS(codigo) {
+  const s = sesiones.filter(function (x) { return x.codigo === codigo; })[0];
+  if (!s) return;
+  const ini = new Date(s.fecha_iso + 'T' + s.hora + ':00-05:00');
+  const fin = new Date(ini.getTime() + (s.duracion_min || 60) * 60000);
+  const z = function (d) { return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'; };
+  const ics = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Vectiva//Sesiones//ES',
+    'BEGIN:VEVENT', 'UID:' + codigo + '@vectiva.co', 'DTSTAMP:' + z(new Date()),
+    'DTSTART:' + z(ini), 'DTEND:' + z(fin),
+    'SUMMARY:' + s.destino + ' · Vectiva',
+    'DESCRIPTION:' + (s.equipaje || '') + '\\nAcceso: ' + URL_PUBLICA,
+    'LOCATION:' + (s.modalidad || 'En línea'),
+    'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY',
+    'DESCRIPTION:Tu sesión empieza en 30 minutos', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'
+  ].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+  a.download = 'sesion-' + codigo.toLowerCase() + '.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+}
 
 const $ = function (id) { return document.getElementById(id); };
 let sesiones = [];
+let listaEspera = false;
 const elegidas = new Set();
 
 // ── cargar programación desde la hoja
@@ -261,10 +560,16 @@ function diagnostico(titulo, ayuda) {
   });
 }
 
+/** Cuando pasa la última sesión, la página no se queda sin salida:
+ *  se convierte en lista de espera para la siguiente tanda. */
 function vacio() {
+  listaEspera = true;
   $('sesiones').innerHTML =
-    '<div class="state">NO HAY SESIONES ABIERTAS EN ESTE MOMENTO.<br>VUELVE PRONTO.</div>';
-  $('enviar').disabled = true;
+    '<div class="state">NO HAY SESIONES ABIERTAS EN ESTE MOMENTO.<br>' +
+    'DÉJANOS TU CORREO Y TE AVISAMOS CUANDO ABRA LA PRÓXIMA.</div>';
+  $('enviar').textContent = 'Avísame de la próxima';
+  const nota = document.querySelector('.note');
+  if (nota) nota.innerHTML = 'SIN COSTO · CUPOS LIMITADOS';
 }
 
 function pintarSesiones() {
@@ -315,7 +620,7 @@ async function enviar() {
 
   if (!nombre) { return falla('Escribe tu nombre.', 'w-nombre'); }
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { return falla('Revisa el correo.', 'w-email'); }
-  if (!elegidas.size) { return falla('Elige al menos una sesión.'); }
+  if (!listaEspera && !elegidas.size) { return falla('Elige al menos una sesión.'); }
 
   const btn = $('enviar');
   btn.disabled = true;
@@ -329,7 +634,7 @@ async function enviar() {
     telefono: $('telefono').value.trim(),
     como_se_entero: $('como').value,
     acepta_comunicaciones: $('acepta').checked,
-    sesiones: Array.from(elegidas),
+    sesiones: listaEspera ? ['LISTA-ESPERA'] : Array.from(elegidas),
     origen_utm: location.search.replace(/^\?/, '') || 'directo'
   };
 
@@ -340,7 +645,12 @@ async function enviar() {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(cuerpo)
     });
-    const d = await r.json();
+    const bruto = await r.text();
+    if (bruto.trim().charAt(0) === '<') {
+      btn.disabled = false; btn.textContent = 'Reserva tu lugar';
+      return falla('El Apps Script está pidiendo iniciar sesión. Revisa los permisos de la implementación.');
+    }
+    const d = JSON.parse(bruto);
 
     if (!d.ok) {
       btn.disabled = false;
@@ -388,8 +698,21 @@ function confirmar(nombre, d) {
       '<strong>' + (s.destino || r.destino || '').toUpperCase() + '</strong>' +
       '<small>' + (s.dia || '') + ' ' + (s.mes_corto || '') + ' · ' +
         (s.hora || r.hora || '') + ' · GMT-5 · ' + (s.modalidad || 'EN LÍNEA') + '</small>' +
+      '<div class="acts">' +
+        '<button data-pase="' + r.codigo + '">Descargar mi pase</button>' +
+        '<button class="sec" data-cal="' + r.codigo + '">Agregar al calendario</button>' +
+      '</div>' +
     '</div>';
   }).join('');
+
+  // el pase se genera con el nombre real de la persona y su consecutivo
+  ultimo = { nombre: nombre, resultados: d.resultados };
+  Array.prototype.forEach.call($('ok-stubs').querySelectorAll('[data-pase]'), function (b) {
+    b.addEventListener('click', function () { descargarPase(b.dataset.pase); });
+  });
+  Array.prototype.forEach.call($('ok-stubs').querySelectorAll('[data-cal]'), function (b) {
+    b.addEventListener('click', function () { descargarICS(b.dataset.cal); });
+  });
 
   $('vista-form').hidden = true;
   $('vista-ok').hidden = false;
